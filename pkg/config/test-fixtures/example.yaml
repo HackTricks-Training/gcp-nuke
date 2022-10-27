@@ -1,0 +1,33 @@
+---
+project-restricted-list:
+- production-project
+
+resource-types:
+  targets:
+  - DynamoDBTable
+  - S3Bucket
+  - S3Object
+  excludes:
+  - IAMRole
+
+projects:
+  gcp-test-project:
+    locations:
+    - "eu-west-1"
+    presets:
+    - "terraform"
+    resource-types:
+      targets:
+      - S3Bucket
+    filters:
+      IAMRole:
+      - "uber.admin"
+      IAMRolePolicyAttachment:
+      - "uber.admin -> AdministratorAccess"
+
+presets:
+  terraform:
+    filters:
+      S3Bucket:
+      - type: glob
+        value: "my-statebucket-*"

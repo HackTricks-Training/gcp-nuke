@@ -1,0 +1,67 @@
+project-restricted-list:
+  - vanguard-prod
+
+projects:
+  doug-test-dev:
+    presets:
+      - "common"
+    locations:
+      - global
+      - us-east1
+      - us-central1
+    filters:
+      Firewall:
+        - property: Name
+          type: glob
+          value: "default-allow-*"
+      Route:
+        - property: Network
+          value: "default"
+
+  doug-test-cust:
+    presets:
+      - "common"
+    locations:
+      - global
+      - us-east1
+
+  vanguard-dev-297213:
+    presets:
+      - "common"
+    locations:
+      - global
+    filters:
+      Secret:
+        - property: CreationDate
+          type: dateOlderThan
+          value: "72h"
+      KMSKey:
+        - property: CreationDate
+          type: dateOlderThan
+          value: "72h"
+        - property: KeyRing
+          value: "projects/vanguard-dev-297213/locations/global/keyRings/developers"
+        - property: KeyRing
+          value: "projects/vanguard-dev-297213/locations/global/keyRings/qa_automation"
+
+presets:
+  common:
+    filters:
+      Secret:
+        - property: tag:nuker
+          value: "no"
+      KMSKey:
+        - property: tag:nuker
+          value: "no"
+      Bucket:
+        - property: tag:nuker
+          value: "no"
+      BucketObject:
+        - property: tag:bucket:object-nuker
+          value: "no"
+      GKECluster:
+        - property: tag:nuker
+          value: "no"
+
+resource-types:
+  excludes:
