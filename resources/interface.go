@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/dshelley66/gcp-nuke/pkg/config"
@@ -20,7 +21,7 @@ type ResourceClientGetter func(*gcputil.Project) (gcputil.GCPClient, error)
 
 type Resource interface {
 	Remove(*gcputil.Project, gcputil.GCPClient) error
-	GetOperationError() error 
+	GetOperationError(context.Context) error
 }
 
 type Filter interface {

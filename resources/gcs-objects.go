@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -74,7 +75,7 @@ func (b *BucketObject) Remove(project *gcputil.Project, client gcputil.GCPClient
 	return nil
 }
 
-func (b *BucketObject) GetOperationError() error {
+func (b *BucketObject) GetOperationError(_ context.Context) error {
 	return nil
 }
 

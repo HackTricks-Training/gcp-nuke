@@ -9,14 +9,6 @@ projects:
       - global
       - us-east1
       - us-central1
-    filters:
-      Firewall:
-        - property: Name
-          type: glob
-          value: "default-allow-*"
-      Route:
-        - property: Network
-          value: "default"
 
   doug-test-cust:
     presets:
@@ -30,6 +22,9 @@ projects:
       - "common"
     locations:
       - global
+      - us-east1
+      - us-central1
+
     filters:
       Secret:
         - property: CreationDate
@@ -43,6 +38,19 @@ projects:
           value: "projects/vanguard-dev-297213/locations/global/keyRings/developers"
         - property: KeyRing
           value: "projects/vanguard-dev-297213/locations/global/keyRings/qa_automation"
+
+  vanguard-api-automation-test-2:
+    presets:
+      - "common"
+    locations:
+      - global
+      - us-east1
+      - us-central1
+    filters:
+      KMSKey:
+        - property: CreationDate
+          type: dateOlderThan
+          value: "72h"
 
 presets:
   common:
@@ -62,6 +70,19 @@ presets:
       GKECluster:
         - property: tag:nuker
           value: "no"
+      ComputeInstance:
+        - property: tag:nuker
+          value: "no"
+      CloudRun:
+        - property: tag:nuker
+          value: "no"
+      Firewall:
+        - property: Name
+          type: glob
+          value: "default-allow-*"
+      Route:
+        - property: Network
+          value: "default"
 
 resource-types:
   excludes:

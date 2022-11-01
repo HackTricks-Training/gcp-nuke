@@ -1,8 +1,8 @@
 package resources
 
 import (
+	"context"
 	"fmt"
-	"net/http"
 	"path"
 	"strings"
 
@@ -93,13 +93,8 @@ func (x *Router) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
-func (x *Router) GetOperationError() error {
-	if x.operation != nil && x.operation.Done() {
-		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
-			return fmt.Errorf("IPAddress Delete error: %s", *x.operation.Proto().HttpErrorMessage)
-		}
-	}
-	return nil
+func (x *Router) GetOperationError(ctx context.Context) error {
+	return getComputeOperationError(ctx, x.operation)
 }
 
 func (x *Router) String() string {

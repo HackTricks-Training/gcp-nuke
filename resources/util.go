@@ -1,5 +1,7 @@
 package resources
 
+import "strings"
+
 func UnPtrBool(ptr *bool, def bool) bool {
 	if ptr == nil {
 		return def
@@ -24,4 +26,13 @@ func EqualStringPtr(v1, v2 *string) bool {
 	}
 
 	return *v1 == *v2
+}
+
+func ZoneInRegionList(zone string, regions []string) bool {
+	for _, region := range regions {
+		if strings.Contains(zone, region) {
+			return true
+		}
+	}
+	return false
 }

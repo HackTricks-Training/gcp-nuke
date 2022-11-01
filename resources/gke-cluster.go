@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -83,7 +84,7 @@ func (x *GKECluster) Remove(project *gcputil.Project, client gcputil.GCPClient) 
 	return nil
 }
 
-func (x *GKECluster) GetOperationError() error {
+func (x *GKECluster) GetOperationError(_ context.Context) error {
 	if x.operation != nil && x.operation.GetStatus() == containerpb.Operation_DONE {
 		if x.operation.GetError() != nil {
 			return fmt.Errorf("GKECluster Delete error: %s", x.operation.GetError().GetDetails()[0])

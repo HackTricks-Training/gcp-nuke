@@ -1,8 +1,8 @@
 package resources
 
 import (
+	"context"
 	"fmt"
-	"net/http"
 	"path"
 
 	compute "cloud.google.com/go/compute/apiv1"
@@ -81,13 +81,8 @@ func (x *GlobalIPAddress) Remove(project *gcputil.Project, client gcputil.GCPCli
 	return nil
 }
 
-func (x *GlobalIPAddress) GetOperationError() error {
-	if x.operation != nil && x.operation.Done() {
-		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
-			return fmt.Errorf("GlobalIPAddress Delete error: %s", *x.operation.Proto().HttpErrorMessage)
-		}
-	}
-	return nil
+func (x *GlobalIPAddress) GetOperationError(ctx context.Context) error {
+	return getComputeOperationError(ctx, x.operation)
 }
 
 func (x *GlobalIPAddress) String() string {

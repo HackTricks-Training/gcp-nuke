@@ -1,8 +1,8 @@
 package resources
 
 import (
+	"context"
 	"fmt"
-	"net/http"
 
 	compute "cloud.google.com/go/compute/apiv1"
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
@@ -81,13 +81,8 @@ func (x *Firewall) Remove(project *gcputil.Project, client gcputil.GCPClient) (e
 	return nil
 }
 
-func (x *Firewall) GetOperationError() error {
-	if  x.operation != nil && x.operation.Done() {
-		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
-			return fmt.Errorf("Firewall Delete error: %s", *x.operation.Proto().HttpErrorMessage)
-		}
-	}
-	return nil
+func (x *Firewall) GetOperationError(ctx context.Context) error {
+	return getComputeOperationError(ctx, x.operation)
 }
 
 func (x *Firewall) String() string {

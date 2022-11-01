@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -81,10 +82,20 @@ func (x *Vpc) Remove(project *gcputil.Project, client gcputil.GCPClient) (err er
 	return nil
 }
 
-func (x *Vpc) GetOperationError() error {
-	if x.operation != nil && x.operation.Done() {
-		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
-			return fmt.Errorf("VPC Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+func (x *Vpc) GetOperationError(ctx context.Context) error {
+	return getComputeOperationError(ctx, x.operation)
+}
+
+func getComputeOperationError(ctx context.Context, op *compute.Operation) error {
+	if op != nil {
+		if err := op.Poll(ctx); err == nil {
+			if op.Done() {
+				if op.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+					return fmt.Errorf("Delete error on '%s': %s", op.Proto().GetTargetLink(), op.Proto().GetHttpErrorMessage())
+				}
+			}
+		} else {
+			return err
 		}
 	}
 	return nil

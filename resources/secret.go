@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -78,10 +79,9 @@ func (x *Secret) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
-func (x *Secret) GetOperationError() error {
+func (x *Secret) GetOperationError(_ context.Context) error {
 	return nil
 }
-
 
 func (x *Secret) String() string {
 	return x.name

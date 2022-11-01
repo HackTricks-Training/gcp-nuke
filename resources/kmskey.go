@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -113,7 +114,7 @@ func (x *KmsKey) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
-func (x *KmsKey) GetOperationError() error {
+func (x *KmsKey) GetOperationError(_ context.Context) error {
 	return nil
 }
 
