@@ -1,5 +1,7 @@
 project-restricted-list:
   - vanguard-prod
+  - vanguard-staging
+  - vanguard-int-prod
 
 projects:
   doug-test-dev:
@@ -24,7 +26,6 @@ projects:
       - global
       - us-east1
       - us-central1
-
     filters:
       Secret:
         - property: CreationDate
