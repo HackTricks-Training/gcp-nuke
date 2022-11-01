@@ -20,6 +20,7 @@ type ResourceClientGetter func(*gcputil.Project) (gcputil.GCPClient, error)
 
 type Resource interface {
 	Remove(*gcputil.Project, gcputil.GCPClient) error
+	GetOperationError() error 
 }
 
 type Filter interface {

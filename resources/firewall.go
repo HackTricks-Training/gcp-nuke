@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"net/http"
 
 	compute "cloud.google.com/go/compute/apiv1"
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
@@ -16,6 +17,7 @@ type Firewall struct {
 	name         string
 	network      string
 	creationDate string
+	operation    *compute.Operation
 }
 
 func init() {
@@ -63,15 +65,15 @@ func ListFirewalls(project *gcputil.Project, client gcputil.GCPClient) ([]Resour
 	return resources, nil
 }
 
-func (v *Firewall) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *Firewall) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	firewallsClient := client.(*compute.FirewallsClient)
 
 	req := &computepb.DeleteFirewallRequest{
-		Firewall: v.name,
+		Firewall: x.name,
 		Project:  project.Name,
 	}
 
-	_, err := firewallsClient.Delete(project.GetContext(), req)
+	x.operation, err = firewallsClient.Delete(project.GetContext(), req)
 	if err != nil {
 		return err
 	}
@@ -79,14 +81,23 @@ func (v *Firewall) Remove(project *gcputil.Project, client gcputil.GCPClient) er
 	return nil
 }
 
-func (v *Firewall) String() string {
-	return v.name
+func (x *Firewall) GetOperationError() error {
+	if  x.operation != nil && x.operation.Done() {
+		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+			return fmt.Errorf("Firewall Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+		}
+	}
+	return nil
 }
 
-func (v *Firewall) Properties() types.Properties {
+func (x *Firewall) String() string {
+	return x.name
+}
+
+func (x *Firewall) Properties() types.Properties {
 	properties := types.NewProperties()
-	properties.Set("Name", v.name)
-	properties.Set("CreationDate", v.creationDate)
+	properties.Set("Name", x.name)
+	properties.Set("CreationDate", x.creationDate)
 
 	return properties
 }

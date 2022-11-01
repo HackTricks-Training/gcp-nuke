@@ -63,11 +63,11 @@ func ListSecret(project *gcputil.Project, client gcputil.GCPClient) ([]Resource,
 	return resources, nil
 }
 
-func (e *Secret) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *Secret) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
 	secretClient := client.(*secretmanager.Client)
 
 	req := &secretmanagerpb.DeleteSecretRequest{
-		Name: e.name,
+		Name: x.name,
 	}
 
 	err := secretClient.DeleteSecret(project.GetContext(), req)
@@ -78,16 +78,21 @@ func (e *Secret) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
-func (e *Secret) String() string {
-	return e.name
+func (x *Secret) GetOperationError() error {
+	return nil
 }
 
-func (e *Secret) Properties() types.Properties {
-	properties := types.NewProperties()
-	properties.Set("Name", e.name)
-	properties.Set("CreationDate", e.creationDate)
 
-	for labelKey, label := range e.labels {
+func (x *Secret) String() string {
+	return x.name
+}
+
+func (x *Secret) Properties() types.Properties {
+	properties := types.NewProperties()
+	properties.Set("Name", x.name)
+	properties.Set("CreationDate", x.creationDate)
+
+	for labelKey, label := range x.labels {
 		properties.SetTag(labelKey, label)
 	}
 

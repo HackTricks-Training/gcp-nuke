@@ -84,11 +84,11 @@ func ListKmsKeys(project *gcputil.Project, client gcputil.GCPClient) ([]Resource
 	return resources, nil
 }
 
-func (k *KmsKey) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *KmsKey) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
 	kmsClient := client.(*kms.KeyManagementClient)
 
 	reqKeyVersions := &kmspb.ListCryptoKeyVersionsRequest{
-		Parent: k.name,
+		Parent: x.name,
 	}
 	itKeyVersions := kmsClient.ListCryptoKeyVersions(project.GetContext(), reqKeyVersions)
 	for {
@@ -97,7 +97,7 @@ func (k *KmsKey) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 			break
 		}
 		if err != nil {
-			return fmt.Errorf("failed to list key versions for key %s: %v", k.name, err)
+			return fmt.Errorf("failed to list key versions for key %s: %v", x.name, err)
 		}
 
 		if !isDestroyed(keyVersion) {
@@ -113,6 +113,10 @@ func (k *KmsKey) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
+func (x *KmsKey) GetOperationError() error {
+	return nil
+}
+
 func isDestroyed(keyVersion *kmspb.CryptoKeyVersion) bool {
 	if keyVersion == nil {
 		return true
@@ -120,17 +124,17 @@ func isDestroyed(keyVersion *kmspb.CryptoKeyVersion) bool {
 	return keyVersion.State == kmspb.CryptoKeyVersion_DESTROYED || keyVersion.State == kmspb.CryptoKeyVersion_DESTROY_SCHEDULED
 }
 
-func (k *KmsKey) String() string {
-	return k.name
+func (x *KmsKey) String() string {
+	return x.name
 }
 
-func (k *KmsKey) Properties() types.Properties {
+func (x *KmsKey) Properties() types.Properties {
 	properties := types.NewProperties()
-	properties.Set("Name", k.name)
-	properties.Set("KeyRing", k.keyRing)
-	properties.Set("CreationDate", k.creationDate)
+	properties.Set("Name", x.name)
+	properties.Set("KeyRing", x.keyRing)
+	properties.Set("CreationDate", x.creationDate)
 
-	for labelKey, label := range k.labels {
+	for labelKey, label := range x.labels {
 		properties.SetTag(labelKey, label)
 	}
 

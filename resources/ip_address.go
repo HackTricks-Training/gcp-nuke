@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"net/http"
 	"path"
 	"strings"
 
@@ -19,6 +20,7 @@ type IPAddress struct {
 	network      string
 	creationDate string
 	region       string
+	operation    *compute.Operation
 }
 
 func init() {
@@ -74,7 +76,7 @@ func ListIPAddresss(project *gcputil.Project, client gcputil.GCPClient) ([]Resou
 	return resources, nil
 }
 
-func (x *IPAddress) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *IPAddress) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	addressesClient := client.(*compute.AddressesClient)
 
 	req := &computepb.DeleteAddressRequest{
@@ -83,11 +85,20 @@ func (x *IPAddress) Remove(project *gcputil.Project, client gcputil.GCPClient) e
 		Region:  x.region,
 	}
 
-	_, err := addressesClient.Delete(project.GetContext(), req)
+	x.operation, err = addressesClient.Delete(project.GetContext(), req)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (x *IPAddress) GetOperationError() error {
+	if x.operation != nil && x.operation.Done() {
+		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+			return fmt.Errorf("IPAddress Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+		}
+	}
 	return nil
 }
 

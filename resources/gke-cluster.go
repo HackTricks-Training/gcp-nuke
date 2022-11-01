@@ -17,6 +17,7 @@ type GKECluster struct {
 	labels       map[string]string
 	creationDate string
 	location     string
+	operation    *containerpb.Operation
 }
 
 func init() {
@@ -68,13 +69,13 @@ func ListGKEClusters(project *gcputil.Project, client gcputil.GCPClient) ([]Reso
 	return resources, nil
 }
 
-func (c *GKECluster) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *GKECluster) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	gkeClient := client.(*container.ClusterManagerClient)
 
 	delReq := &containerpb.DeleteClusterRequest{
-		Name: fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project.Name, c.location, c.name),
+		Name: fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project.Name, x.location, x.name),
 	}
-	_, err := gkeClient.DeleteCluster(project.GetContext(), delReq)
+	x.operation, err = gkeClient.DeleteCluster(project.GetContext(), delReq)
 	if err != nil {
 		return err
 	}
@@ -82,17 +83,26 @@ func (c *GKECluster) Remove(project *gcputil.Project, client gcputil.GCPClient) 
 	return nil
 }
 
-func (c *GKECluster) String() string {
-	return c.name
+func (x *GKECluster) GetOperationError() error {
+	if x.operation != nil && x.operation.GetStatus() == containerpb.Operation_DONE {
+		if x.operation.GetError() != nil {
+			return fmt.Errorf("GKECluster Delete error: %s", x.operation.GetError().GetDetails()[0])
+		}
+	}
+	return nil
 }
 
-func (c *GKECluster) Properties() types.Properties {
-	properties := types.NewProperties()
-	properties.Set("Name", c.name)
-	properties.Set("CreationDate", c.creationDate)
-	properties.Set("Location", c.location)
+func (x *GKECluster) String() string {
+	return x.name
+}
 
-	for labelKey, label := range c.labels {
+func (x *GKECluster) Properties() types.Properties {
+	properties := types.NewProperties()
+	properties.Set("Name", x.name)
+	properties.Set("CreationDate", x.creationDate)
+	properties.Set("Location", x.location)
+
+	for labelKey, label := range x.labels {
 		properties.SetTag(labelKey, label)
 	}
 

@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"net/http"
 	"path"
 	"strings"
 
@@ -19,6 +20,7 @@ type Router struct {
 	network      string
 	creationDate string
 	region       string
+	operation    *compute.Operation
 }
 
 func init() {
@@ -74,13 +76,13 @@ func ListRouters(project *gcputil.Project, client gcputil.GCPClient) ([]Resource
 	return resources, nil
 }
 
-func (r *Router) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *Router) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
 	routersClient := client.(*compute.RoutersClient)
 
 	req := &computepb.DeleteRouterRequest{
 		Project: project.Name,
-		Region:  r.region,
-		Router:  r.name,
+		Region:  x.region,
+		Router:  x.name,
 	}
 
 	_, err := routersClient.Delete(project.GetContext(), req)
@@ -91,15 +93,24 @@ func (r *Router) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
-func (r *Router) String() string {
-	return r.name
+func (x *Router) GetOperationError() error {
+	if x.operation != nil && x.operation.Done() {
+		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+			return fmt.Errorf("IPAddress Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+		}
+	}
+	return nil
 }
 
-func (r *Router) Properties() types.Properties {
+func (x *Router) String() string {
+	return x.name
+}
+
+func (x *Router) Properties() types.Properties {
 	properties := types.NewProperties()
-	properties.Set("Name", r.name)
-	properties.Set("Network", r.network)
-	properties.Set("CreationDate", r.creationDate)
+	properties.Set("Name", x.name)
+	properties.Set("Network", x.network)
+	properties.Set("CreationDate", x.creationDate)
 
 	return properties
 }

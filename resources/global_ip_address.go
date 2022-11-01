@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"net/http"
 	"path"
 
 	compute "cloud.google.com/go/compute/apiv1"
@@ -17,6 +18,7 @@ type GlobalIPAddress struct {
 	name         string
 	network      string
 	creationDate string
+	operation    *compute.Operation
 }
 
 func init() {
@@ -63,7 +65,7 @@ func ListGlobalIPAddresss(project *gcputil.Project, client gcputil.GCPClient) ([
 	return resources, nil
 }
 
-func (x *GlobalIPAddress) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *GlobalIPAddress) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	addressesClient := client.(*compute.GlobalAddressesClient)
 
 	req := &computepb.DeleteGlobalAddressRequest{
@@ -71,11 +73,20 @@ func (x *GlobalIPAddress) Remove(project *gcputil.Project, client gcputil.GCPCli
 		Address: x.name,
 	}
 
-	_, err := addressesClient.Delete(project.GetContext(), req)
+	x.operation, err = addressesClient.Delete(project.GetContext(), req)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (x *GlobalIPAddress) GetOperationError() error {
+	if x.operation != nil && x.operation.Done() {
+		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+			return fmt.Errorf("GlobalIPAddress Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+		}
+	}
 	return nil
 }
 

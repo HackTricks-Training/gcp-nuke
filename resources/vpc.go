@@ -16,6 +16,7 @@ const ResourceTypeVPC = "VPC"
 type Vpc struct {
 	name         string
 	creationDate string
+	operation    *compute.Operation
 }
 
 var noDefaultNetworkFilter = "name != default"
@@ -64,37 +65,39 @@ func ListVpcs(project *gcputil.Project, client gcputil.GCPClient) ([]Resource, e
 	return resources, nil
 }
 
-func (v *Vpc) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *Vpc) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	networksClient := client.(*compute.NetworksClient)
 
 	req := &computepb.DeleteNetworkRequest{
-		Network: v.name,
+		Network: x.name,
 		Project: project.Name,
 	}
 
-	op, err := networksClient.Delete(project.GetContext(), req)
+	x.operation, err = networksClient.Delete(project.GetContext(), req)
 	if err != nil {
 		return err
 	}
 
-	err = op.Wait(project.GetContext())
-	if err != nil {
-		return err
-	}
-	if *op.Proto().HttpErrorStatusCode != http.StatusOK {
-		return fmt.Errorf("VPC Delete error: %s", *op.Proto().HttpErrorMessage)
+	return nil
+}
+
+func (x *Vpc) GetOperationError() error {
+	if x.operation != nil && x.operation.Done() {
+		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+			return fmt.Errorf("VPC Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+		}
 	}
 	return nil
 }
 
-func (v *Vpc) String() string {
-	return v.name
+func (x *Vpc) String() string {
+	return x.name
 }
 
-func (v *Vpc) Properties() types.Properties {
+func (x *Vpc) Properties() types.Properties {
 	properties := types.NewProperties()
-	properties.Set("Name", v.name)
-	properties.Set("CreationDate", v.creationDate)
+	properties.Set("Name", x.name)
+	properties.Set("CreationDate", x.creationDate)
 
 	return properties
 }

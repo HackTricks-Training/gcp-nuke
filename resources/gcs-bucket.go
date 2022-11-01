@@ -73,6 +73,10 @@ func (b *Bucket) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
+func (b *Bucket) GetOperationError() error {
+	return nil
+}
+
 func (b *Bucket) String() string {
 	return b.name
 }

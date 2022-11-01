@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"net/http"
 	"path"
 	"strings"
 
@@ -19,6 +20,7 @@ type Subnet struct {
 	network      string
 	creationDate string
 	region       string
+	operation    *compute.Operation
 }
 
 func init() {
@@ -75,16 +77,16 @@ func ListSubnets(project *gcputil.Project, client gcputil.GCPClient) ([]Resource
 	return resources, nil
 }
 
-func (s *Subnet) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *Subnet) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	subnetworksClient := client.(*compute.SubnetworksClient)
 
 	req := &computepb.DeleteSubnetworkRequest{
 		Project:    project.Name,
-		Region:     s.region,
-		Subnetwork: s.name,
+		Region:     x.region,
+		Subnetwork: x.name,
 	}
 
-	_, err := subnetworksClient.Delete(project.GetContext(), req)
+	x.operation, err = subnetworksClient.Delete(project.GetContext(), req)
 	if err != nil {
 		return err
 	}
@@ -92,15 +94,24 @@ func (s *Subnet) Remove(project *gcputil.Project, client gcputil.GCPClient) erro
 	return nil
 }
 
-func (s *Subnet) String() string {
-	return s.name
+func (x *Subnet) GetOperationError() error {
+	if x.operation != nil && x.operation.Done() {
+		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+			return fmt.Errorf("IPAddress Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+		}
+	}
+	return nil
 }
 
-func (s *Subnet) Properties() types.Properties {
+func (x *Subnet) String() string {
+	return x.name
+}
+
+func (x *Subnet) Properties() types.Properties {
 	properties := types.NewProperties()
-	properties.Set("Name", s.name)
-	properties.Set("Network", s.network)
-	properties.Set("CreationDate", s.creationDate)
+	properties.Set("Name", x.name)
+	properties.Set("Network", x.network)
+	properties.Set("CreationDate", x.creationDate)
 
 	return properties
 }

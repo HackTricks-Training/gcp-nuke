@@ -290,6 +290,11 @@ func (n *Nuke) HandleRemove(item *Item) {
 func (n *Nuke) HandleWait(item *Item, cache map[string]map[string][]resources.Resource) {
 	var err error
 	project := item.Project.Name
+	if err := item.Resource.GetOperationError(); err != nil {
+		item.State = ItemStateFailed
+		item.Reason = err.Error()
+		return
+	}
 	_, ok := cache[project]
 	if !ok {
 		cache[project] = map[string][]resources.Resource{}

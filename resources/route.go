@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"net/http"
 	"path"
 
 	compute "cloud.google.com/go/compute/apiv1"
@@ -17,6 +18,7 @@ type Route struct {
 	name         string
 	network      string
 	creationDate string
+	operation    *compute.Operation
 }
 
 func init() {
@@ -64,15 +66,15 @@ func ListRoutes(project *gcputil.Project, client gcputil.GCPClient) ([]Resource,
 	return resources, nil
 }
 
-func (v *Route) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
+func (x *Route) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	firewallsClient := client.(*compute.RoutesClient)
 
 	req := &computepb.DeleteRouteRequest{
-		Route:   v.name,
+		Route:   x.name,
 		Project: project.Name,
 	}
 
-	_, err := firewallsClient.Delete(project.GetContext(), req)
+	x.operation, err = firewallsClient.Delete(project.GetContext(), req)
 	if err != nil {
 		return err
 	}
@@ -80,15 +82,24 @@ func (v *Route) Remove(project *gcputil.Project, client gcputil.GCPClient) error
 	return nil
 }
 
-func (v *Route) String() string {
-	return v.name
+func (x *Route) GetOperationError() error {
+	if x.operation != nil && x.operation.Done() {
+		if x.operation.Proto().GetHttpErrorStatusCode() != http.StatusOK {
+			return fmt.Errorf("IPAddress Delete error: %s", *x.operation.Proto().HttpErrorMessage)
+		}
+	}
+	return nil
 }
 
-func (v *Route) Properties() types.Properties {
+func (x *Route) String() string {
+	return x.name
+}
+
+func (x *Route) Properties() types.Properties {
 	properties := types.NewProperties()
-	properties.Set("Name", v.name)
-	properties.Set("Network", path.Base(v.network))
-	properties.Set("CreationDate", v.creationDate)
+	properties.Set("Name", x.name)
+	properties.Set("Network", path.Base(x.network))
+	properties.Set("CreationDate", x.creationDate)
 
 	return properties
 }
