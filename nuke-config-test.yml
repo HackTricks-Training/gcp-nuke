@@ -84,6 +84,12 @@ presets:
       Route:
         - property: Network
           value: "default"
+      PubSubTopic:
+        - property: tag:nuker
+          value: "no"
+      PubSubSubscription:
+        - property: tag:nuker
+          value: "no"
 
 resource-types:
   excludes:
