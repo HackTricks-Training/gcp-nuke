@@ -6,6 +6,8 @@ require (
 	cloud.google.com/go/compute v1.12.1
 	cloud.google.com/go/container v1.6.0
 	cloud.google.com/go/kms v1.5.0
+	cloud.google.com/go/redis v1.9.0
+	cloud.google.com/go/run v0.2.0
 	cloud.google.com/go/secretmanager v1.8.0
 	cloud.google.com/go/storage v1.27.0
 	github.com/fatih/color v1.13.0
@@ -23,7 +25,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.1.0 // indirect
 	cloud.google.com/go/iam v0.6.0 // indirect
 	cloud.google.com/go/longrunning v0.1.1 // indirect
-	cloud.google.com/go/run v0.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
