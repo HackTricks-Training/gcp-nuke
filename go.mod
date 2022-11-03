@@ -15,14 +15,14 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.5.0
 	golang.org/x/sync v0.1.0
-	google.golang.org/api v0.101.0
+	google.golang.org/api v0.102.0
 	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	cloud.google.com/go v0.105.0 // indirect
-	cloud.google.com/go/compute/metadata v0.1.0 // indirect
+	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	cloud.google.com/go/iam v0.6.0 // indirect
 	cloud.google.com/go/longrunning v0.1.1 // indirect
 	cloud.google.com/go/pubsub v1.26.0 // indirect
