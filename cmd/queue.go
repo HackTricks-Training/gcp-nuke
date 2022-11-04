@@ -58,6 +58,7 @@ func (i *Item) List() ([]resources.Resource, error) {
 	if err != nil {
 		dump := util.Indent(fmt.Sprintf("%v", err), "    ")
 		log.Errorf("Listing %s failed:\n%s", i.Type, dump)
+		return nil, err
 	}
 
 	lister := resources.GetLister(i.Type)

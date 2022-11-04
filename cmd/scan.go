@@ -58,6 +58,7 @@ func (s *scanner) list(project *gcputil.Project, resourceType string) {
 	if err != nil {
 		dump := util.Indent(fmt.Sprintf("%v", err), "    ")
 		log.Errorf("Listing %s failed:\n%s", resourceType, dump)
+		return
 	}
 	lister := resources.GetLister(resourceType)
 	var rs []resources.Resource

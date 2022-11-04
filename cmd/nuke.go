@@ -273,7 +273,8 @@ func (n *Nuke) HandleRemove(item *Item) {
 	gcpClient, err := clientGetter(item.Project)
 	if err != nil {
 		dump := util.Indent(fmt.Sprintf("%v", err), "    ")
-		log.Errorf("Listing %s failed:\n%s", item.Type, dump)
+		log.Errorf("Remove %s failed:\n%s", item.Type, dump)
+		return
 	}
 
 	err = item.Resource.Remove(item.Project, gcpClient)

@@ -1,0 +1,6 @@
+/vendor
+/gcp-nuke
+/gcp-nuke-*
+/dist
+/releases
+/mocks
