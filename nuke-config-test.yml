@@ -78,6 +78,9 @@ presets:
       CloudRun:
         - property: tag:nuker
           value: "no"
+      CloudSQL:
+        - property: tag:nuker
+          value: "no"
       ComputeInstance:
         - property: tag:nuker
           value: "no"
