@@ -6,10 +6,10 @@ import (
 	"time"
 
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
 	"github.com/dshelley66/gcp-nuke/pkg/types"
 	"google.golang.org/api/iterator"
-	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 )
 
 const ResourceTypeSecret = "Secret"

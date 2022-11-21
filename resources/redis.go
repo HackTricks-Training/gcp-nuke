@@ -11,7 +11,7 @@ import (
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
 	"github.com/dshelley66/gcp-nuke/pkg/types"
 	"google.golang.org/api/iterator"
-	redispb "google.golang.org/genproto/googleapis/cloud/redis/v1"
+	"cloud.google.com/go/redis/apiv1/redispb"
 )
 
 const ResourceTypeRedis = "Redis"

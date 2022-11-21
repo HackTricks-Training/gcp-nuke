@@ -6,10 +6,10 @@ import (
 	"time"
 
 	kms "cloud.google.com/go/kms/apiv1"
+	"cloud.google.com/go/kms/apiv1/kmspb"
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
 	"github.com/dshelley66/gcp-nuke/pkg/types"
 	"google.golang.org/api/iterator"
-	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
 
 const ResourceTypeKmsKey = "KMSKey"

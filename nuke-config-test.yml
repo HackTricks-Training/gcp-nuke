@@ -4,6 +4,22 @@ project-restricted-list:
   - vanguard-int-prod
 
 projects:
+  vanguard-test-deploy:
+    presets:
+      - "common"
+    locations:
+      - global
+      - us-east1
+      - us-east4
+      - us-central1
+      - us-central2
+      - us-west1
+      - asia-east1
+      - europe-west1
+      - asia-southeast1
+      - asia-south1
+      - northamerica-northeast2
+
   doug-test-dev:
     presets:
       - "common"
@@ -26,6 +42,8 @@ projects:
       - global
       - us-east1
       - us-central1
+      - asia-east1
+
     filters:
       Secret:
         - property: CreationDate
@@ -66,6 +84,22 @@ projects:
           type: dateOlderThan
           value: "72h"
 
+  vanguard-20200519:
+    presets:
+      - "common"
+    locations:
+      - global
+      - us-east1
+      - us-east4
+      - us-central1
+      - us-central2
+      - us-west1
+      - asia-east1
+      - europe-west1
+      - asia-southeast1
+      - asia-south1
+      - northamerica-northeast2
+
 presets:
   common:
     filters:
@@ -88,6 +122,7 @@ presets:
         - property: Name
           type: glob
           value: "default-allow-*"
+
       GKECluster:
         - property: tag:nuker
           value: "no"

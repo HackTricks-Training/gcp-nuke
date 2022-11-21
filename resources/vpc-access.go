@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	vpcaccess "cloud.google.com/go/vpcaccess/apiv1"
+	"cloud.google.com/go/vpcaccess/apiv1/vpcaccesspb"
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
 	"github.com/dshelley66/gcp-nuke/pkg/types"
 	"google.golang.org/api/iterator"
-	vpcaccesspb "google.golang.org/genproto/googleapis/cloud/vpcaccess/v1"
 )
 
 const ResourceTypeVpcAccess = "VPCAccess"

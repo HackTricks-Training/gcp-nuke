@@ -34,7 +34,7 @@ vet:
 	go vet $(GOPKGS)
 
 lint:
-	$(foreach pkg,$(GOPKGS),golint $(pkg);)
+	$(foreach pkg,$(GOPKGS),staticcheck $(pkg);)
 
 test_packages:
 	go test $(GOPKGS)
@@ -80,5 +80,5 @@ install: test
 		$(BUILD_FLAGS);)
 
 clean:
-	rm dist/ -rvf
-	rm mocks/ -rvf
+	rm -rvf dist 
+	rm -rvf mocks

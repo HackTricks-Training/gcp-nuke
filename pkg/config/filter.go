@@ -14,11 +14,11 @@ type FilterType string
 
 const (
 	FilterTypeEmpty         FilterType = ""
-	FilterTypeExact                    = "exact"
-	FilterTypeGlob                     = "glob"
-	FilterTypeRegex                    = "regex"
-	FilterTypeContains                 = "contains"
-	FilterTypeDateOlderThan            = "dateOlderThan"
+	FilterTypeExact         FilterType = "exact"
+	FilterTypeGlob          FilterType = "glob"
+	FilterTypeRegex         FilterType = "regex"
+	FilterTypeContains      FilterType = "contains"
+	FilterTypeDateOlderThan FilterType = "dateOlderThan"
 )
 
 type Filters map[string][]Filter

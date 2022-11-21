@@ -31,7 +31,6 @@ func GetCloudSQLClient(project *gcputil.Project) (gcputil.GCPClient, error) {
 		return client, nil
 	}
 
-	// client, err := cloudsql.NewService(project.GetContext(), project.Creds.GetNewClientOptions()...)
 	client, err := gcputil.NewSQLClient(project.GetContext(), project.Creds.GetNewClientOptions()...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sql client: %v", err)
@@ -41,11 +40,11 @@ func GetCloudSQLClient(project *gcputil.Project) (gcputil.GCPClient, error) {
 }
 
 func ListCloudSQLs(project *gcputil.Project, client gcputil.GCPClient) ([]Resource, error) {
-	cloudSqlClient := client.(*gcputil.CloudSQLClient)
+	cloudSQLClient := client.(*gcputil.CloudSQLClient)
 
 	resources := make([]Resource, 0)
 
-	resp, err := cloudSqlClient.List(project.GetContext(), project.Name)
+	resp, err := cloudSQLClient.List(project.GetContext(), project.Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list SQL instances: %v", err)
 	}

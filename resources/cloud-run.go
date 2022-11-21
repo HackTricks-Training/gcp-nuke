@@ -8,10 +8,10 @@ import (
 	"time"
 
 	run "cloud.google.com/go/run/apiv2"
+	"cloud.google.com/go/run/apiv2/runpb"
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
 	"github.com/dshelley66/gcp-nuke/pkg/types"
 	"google.golang.org/api/iterator"
-	runpb "google.golang.org/genproto/googleapis/cloud/run/v2"
 )
 
 const ResourceTypeCloudRun = "CloudRun"

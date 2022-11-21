@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/dshelley66/gcp-nuke/pkg/types"
 	"gopkg.in/yaml.v2"
@@ -60,7 +60,7 @@ type CustomEndpoints []*CustomRegion
 func Load(path string) (*Nuke, error) {
 	var err error
 
-	raw, err := ioutil.ReadFile(path)
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
