@@ -27,6 +27,10 @@ projects:
       - global
       - us-east1
       - us-central1
+    filters:
+      IAMServiceAccount:
+        - property: Name
+          value: "doug-cpi@doug-test-dev.iam.gserviceaccount.com"
 
   doug-test-cust:
     presets:
@@ -57,7 +61,13 @@ projects:
           value: "projects/vanguard-dev-297213/locations/global/keyRings/developers"
         - property: KeyRing
           value: "projects/vanguard-dev-297213/locations/global/keyRings/qa_automation"
-
+      IAMServiceAccount:
+        - property: Name
+          value: "vanguard-bot@vanguard-dev-297213.iam.gserviceaccount.com"
+        - property: Name
+          value: "codepipes-demo@vanguard-dev-297213.iam.gserviceaccount.com"
+        - property: Name
+          value: "azp-ci@vanguard-dev-297213.iam.gserviceaccount.com"
   vanguard-api-automation-test-2:
     presets:
       - "common"
@@ -70,6 +80,11 @@ projects:
         - property: CreationDate
           type: dateOlderThan
           value: "72h"
+      IAMServiceAccount:
+        - property: Name
+          type: regex
+          value: "^test-*."
+          invert: true
 
   vanguard-qa:
     presets:
@@ -144,6 +159,16 @@ presets:
       Secret:
         - property: tag:nuker
           value: "no"
+      IAMServiceAccount:
+        - property: Name
+          type: glob
+          value: "microsoft-defender*"
+        - property: Name
+          type: glob
+          value: "*compute@developer*"
+        - property: Name
+          type: glob
+          value: "*appspot*"
 
 resource-types:
   excludes:

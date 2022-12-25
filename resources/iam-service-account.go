@@ -1,97 +1,95 @@
 package resources
 
-// import (
-// 	"fmt"
+import (
+	"context"
+	"fmt"
+	"path"
 
-// 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
-// 	"github.com/dshelley66/gcp-nuke/pkg/types"
-// 	iam "google.golang.org/api/iam/v1"
-// 	"google.golang.org/api/iterator"
-// 	iampb "google.golang.org/genproto/googleapis/cloud/iam/v1"
-// )
+	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
+	"github.com/dshelley66/gcp-nuke/pkg/types"
+	iam "google.golang.org/api/iam/v1"
+)
 
-// const ResourceTypeIAMServiceAccount = "IAMServiceAccount"
+const ResourceTypeIAMServiceAccount = "IAMServiceAccount"
 
-// type IAMServiceAccount struct {
-// 	name         string
-// 	network      string
-// 	creationDate string
-// 	operation    *iam.Operation
-// }
+type IAMServiceAccount struct {
+	id          string
+	name        string
+	displayName string
+	disabled    bool
+}
 
-// func init() {
-// 	register(ResourceTypeIAMServiceAccount, GetIAMClient, ListIAMServiceAccounts)
-// }
+func init() {
+	register(ResourceTypeIAMServiceAccount, GetIAMClient, ListIAMServiceAccounts)
+}
 
-// func GetIAMClient(project *gcputil.Project) (gcputil.GCPClient, error) {
-// 	if client, ok := project.GetClient(ResourceTypeIAMServiceAccount); ok {
-// 		return client, nil
-// 	}
+func GetIAMClient(project *gcputil.Project) (gcputil.GCPClient, error) {
+	if client, ok := project.GetClient(ResourceTypeIAMServiceAccount); ok {
+		return client, nil
+	}
 
-// 	client, err := iam.NewService(project.GetContext(), project.Creds.GetNewClientOptions()...)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to create IAM client: %v", err)
-// 	}
-// 	project.AddClient(ResourceTypeIAMServiceAccount, client)
-// 	return client, nil
-// }
+	client, err := gcputil.NewIAMClient(project.GetContext(), project.Creds.GetNewClientOptions()...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create IAM client: %v", err)
+	}
+	project.AddClient(ResourceTypeIAMServiceAccount, client)
+	return client, nil
+}
 
-// func ListIAMServiceAccounts(project *gcputil.Project, client gcputil.GCPClient) ([]Resource, error) {
-// 	IAMServiceAccountsClient := client.(*compute.IAMServiceAccountsClient)
+func ListIAMServiceAccounts(project *gcputil.Project, client gcputil.GCPClient) ([]Resource, error) {
+	iamClient := client.(*gcputil.IAMClient)
 
-// 	resources := make([]Resource, 0)
-// 	req := &computepb.ListIAMServiceAccountsRequest{
-// 		Project: project.Name,
-// 		Filter:  &noDefaultNetworkFilter,
-// 	}
+	resources := make([]Resource, 0)
+	pageToken := ""
+	for {
+		resp, err := iam.NewProjectsServiceAccountsService(iamClient.GetIAMService()).
+			List(fmt.Sprintf("projects/%s", project.Name)).
+			PageToken(pageToken).
+			Do()
+		if err != nil {
+			return resources, err
+		}
 
-// 	it := IAMServiceAccountsClient.List(project.GetContext(), req)
-// 	for {
-// 		resp, err := it.Next()
-// 		if err == iterator.Done {
-// 			break
-// 		}
+		for _, servAcct := range resp.Accounts {
+			resources = append(resources, &IAMServiceAccount{
+				id:          servAcct.Name,
+				name:        path.Base(servAcct.Name),
+				displayName: servAcct.DisplayName,
+				disabled:    servAcct.Disabled,
+			})
+		}
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return resources, nil
+}
 
-// 		if err != nil {
-// 			return nil, fmt.Errorf("failed to list IAMServiceAccounts: %v", err)
-// 		}
-// 		resources = append(resources, &IAMServiceAccount{
-// 			name:         *resp.Name,
-// 			network:      *resp.Network,
-// 			creationDate: *resp.CreationTimestamp,
-// 		})
-// 	}
-// 	return resources, nil
-// }
+func (x *IAMServiceAccount) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
+	iamClient := client.(*gcputil.IAMClient)
 
-// func (x *IAMServiceAccount) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
-// 	IAMServiceAccountsClient := client.(*compute.IAMServiceAccountsClient)
+	_, err = iam.NewProjectsServiceAccountsService(iamClient.GetIAMService()).Delete(x.id).Do()
+	if err != nil {
+		return err
+	}
 
-// 	req := &computepb.DeleteIAMServiceAccountRequest{
-// 		IAMServiceAccount: x.name,
-// 		Project:           project.Name,
-// 	}
+	return nil
+}
 
-// 	x.operation, err = IAMServiceAccountsClient.Delete(project.GetContext(), req)
-// 	if err != nil {
-// 		return err
-// 	}
+func (x *IAMServiceAccount) GetOperationError(_ context.Context) error {
+	return nil
+}
 
-// 	return nil
-// }
+func (x *IAMServiceAccount) String() string {
+	return x.name
+}
 
-// func (x *IAMServiceAccount) GetOperationError(ctx context.Context) error {
-// 	return getComputeOperationError(ctx, x.operation)
-// }
+func (x *IAMServiceAccount) Properties() types.Properties {
+	properties := types.NewProperties()
+	properties.Set("Name", x.name)
+	properties.Set("DisplayName", x.displayName)
+	properties.Set("Disabled", x.disabled)
 
-// func (x *IAMServiceAccount) String() string {
-// 	return x.name
-// }
-
-// func (x *IAMServiceAccount) Properties() types.Properties {
-// 	properties := types.NewProperties()
-// 	properties.Set("Name", x.name)
-// 	properties.Set("CreationDate", x.creationDate)
-
-// 	return properties
-// }
+	return properties
+}

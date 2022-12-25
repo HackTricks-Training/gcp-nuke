@@ -9,6 +9,15 @@ BUILD_MACHINE=$(shell uname -n)
 BUILD_USER=$(shell whoami)
 BUILD_ENVIRONMENT=$(BUILD_USER)@$(BUILD_MACHINE)
 
+# vars for build and push to docker repo
+BUILDX_PLATFORM="linux/arm64/v8,linux/amd64"
+ifeq (${DOCKER_REPO},)
+DOCKER_REPO=gcp-nuke
+endif
+ifneq (${TAG_LATEST},)
+ADD_LATEST=--tag ${DOCKER_REPO}:latest
+endif
+
 BUILD_XDST=$(PACKAGE)/cmd
 BUILD_FLAGS=-ldflags "\
 	$(ADDITIONAL_LDFLAGS) -s -w \
@@ -78,6 +87,10 @@ xc:
 install: test
 	$(foreach TARGET,$(TARGETS),go install \
 		$(BUILD_FLAGS);)
+
+docker-build:
+	docker buildx create --use
+	docker buildx build --push --platform ${BUILDX_PLATFORM} --tag ${DOCKER_REPO}:${BUILD_VERSION} ${ADD_LATEST} .
 
 clean:
 	rm -rvf dist 
