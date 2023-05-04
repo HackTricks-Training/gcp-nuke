@@ -89,8 +89,9 @@ install: test
 		$(BUILD_FLAGS);)
 
 docker-build:
-	docker buildx create --use
+	docker buildx create --name gcp-nuke-builder --use
 	docker buildx build --push --platform ${BUILDX_PLATFORM} --tag ${DOCKER_REPO}:${BUILD_VERSION} ${ADD_LATEST} .
+	docker buildx rm gcp-nuke-builder
 
 clean:
 	rm -rvf dist 

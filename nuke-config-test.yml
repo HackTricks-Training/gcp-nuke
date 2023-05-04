@@ -68,7 +68,7 @@ projects:
           value: "codepipes-demo@vanguard-dev-297213.iam.gserviceaccount.com"
         - property: Name
           value: "azp-ci@vanguard-dev-297213.iam.gserviceaccount.com"
-  vanguard-api-automation-test-2:
+  vanguard-api-automation-test-3:
     presets:
       - "common"
     locations:
@@ -76,6 +76,10 @@ projects:
       - us-east1
       - us-central1
     filters:
+      ComputeDisk:
+        - property: CreationDate
+          type: dateOlderThan
+          value: "72h"
       KMSKey:
         - property: CreationDate
           type: dateOlderThan
@@ -131,6 +135,9 @@ presets:
         - property: tag:nuker
           value: "no"
       ComputeInstance:
+        - property: tag:nuker
+          value: "no"
+      ComputeDisk:
         - property: tag:nuker
           value: "no"
       Firewall:
