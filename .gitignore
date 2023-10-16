@@ -6,3 +6,5 @@
 /mocks
 coverage.html
 
+.vscode/*
+

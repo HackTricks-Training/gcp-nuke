@@ -96,3 +96,4 @@ docker-build:
 clean:
 	rm -rvf dist 
 	rm -rvf mocks
+	rm coverage.html
