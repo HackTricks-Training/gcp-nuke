@@ -1,171 +1,24 @@
 project-restricted-list:
-  - vanguard-prod
-  - vanguard-staging
-  - vanguard-int-prod
+  - gcp-labs-management
 
 projects:
-  vanguard-test-deploy:
+  "gcp-labs-xyo4pemi":
     presets:
       - "common"
     locations:
       - global
-      - us-east1
-      - us-east4
       - us-central1
-      - us-central2
-      - us-west1
-      - asia-east1
-      - europe-west1
-      - asia-southeast1
-      - asia-south1
-      - northamerica-northeast2
-
-  doug-test-dev:
-    presets:
-      - "common"
-    locations:
-      - global
-      - us-east1
-      - us-central1
-    filters:
-      IAMServiceAccount:
-        - property: Name
-          value: "doug-cpi@doug-test-dev.iam.gserviceaccount.com"
-
-  doug-test-cust:
-    presets:
-      - "common"
-    locations:
-      - global
-      - us-east1
-
-  vanguard-dev-297213:
-    presets:
-      - "common"
-    locations:
-      - global
-      - us-east1
-      - us-central1
-      - asia-east1
-
-    filters:
-      Secret:
-        - property: CreationDate
-          type: dateOlderThan
-          value: "72h"
-      KMSKey:
-        - property: CreationDate
-          type: dateOlderThan
-          value: "72h"
-        - property: KeyRing
-          value: "projects/vanguard-dev-297213/locations/global/keyRings/developers"
-        - property: KeyRing
-          value: "projects/vanguard-dev-297213/locations/global/keyRings/qa_automation"
-      IAMServiceAccount:
-        - property: Name
-          value: "vanguard-bot@vanguard-dev-297213.iam.gserviceaccount.com"
-        - property: Name
-          value: "codepipes-demo@vanguard-dev-297213.iam.gserviceaccount.com"
-        - property: Name
-          value: "azp-ci@vanguard-dev-297213.iam.gserviceaccount.com"
-  vanguard-api-automation-test-3:
-    presets:
-      - "common"
-    locations:
-      - global
-      - us-east1
-      - us-central1
-    filters:
-      ComputeDisk:
-        - property: CreationDate
-          type: dateOlderThan
-          value: "72h"
-      KMSKey:
-        - property: CreationDate
-          type: dateOlderThan
-          value: "72h"
-      IAMServiceAccount:
-        - property: Name
-          type: regex
-          value: "^test-*."
-          invert: true
-
-  vanguard-qa:
-    presets:
-      - "common"
-    locations:
-      - global
-      - us-east1
-      - us-central1
-    filters:
-      KMSKey:
-        - property: CreationDate
-          type: dateOlderThan
-          value: "72h"
-
-  vanguard-20200519:
-    presets:
-      - "common"
-    locations:
-      - global
-      - us-east1
-      - us-east4
-      - us-central1
-      - us-central2
-      - us-west1
-      - asia-east1
-      - europe-west1
-      - asia-southeast1
-      - asia-south1
-      - northamerica-northeast2
 
 presets:
   common:
     filters:
-      Bucket:
-        - property: tag:nuker
-          value: "no"
-      BucketObject:
-        - property: tag:bucket:object-nuker
-          value: "no"
-      CloudRun:
-        - property: tag:nuker
-          value: "no"
-      CloudSQL:
-        - property: tag:nuker
-          value: "no"
-      ComputeInstance:
-        - property: tag:nuker
-          value: "no"
-      ComputeDisk:
-        - property: tag:nuker
-          value: "no"
       Firewall:
         - property: Name
           type: glob
           value: "default-allow-*"
-
-      GKECluster:
-        - property: tag:nuker
-          value: "no"
-      KMSKey:
-        - property: tag:nuker
-          value: "no"
-      PubSubSubscription:
-        - property: tag:nuker
-          value: "no"
-      PubSubTopic:
-        - property: tag:nuker
-          value: "no"
-      Redis:
-        - property: tag:nuker
-          value: "no"
       Route:
         - property: Network
           value: "default"
-      Secret:
-        - property: tag:nuker
-          value: "no"
       IAMServiceAccount:
         - property: Name
           type: glob
@@ -176,6 +29,16 @@ presets:
         - property: Name
           type: glob
           value: "*appspot*"
+        - property: Name
+          type: glob
+          value: "*appengine-lab-1-target*"
+      Bucket:
+        - property: Name
+          type: glob
+          value: "*appspot*"
+        - property: Name
+          type: glob
+          value: "*appengine-lab-1*"
 
 resource-types:
   excludes:

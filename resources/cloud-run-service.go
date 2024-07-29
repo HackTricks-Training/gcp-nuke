@@ -9,14 +9,15 @@ import (
 
 	run "cloud.google.com/go/run/apiv2"
 	"cloud.google.com/go/run/apiv2/runpb"
+	"google.golang.org/api/iterator"
+
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
 	"github.com/dshelley66/gcp-nuke/pkg/types"
-	"google.golang.org/api/iterator"
 )
 
-const ResourceTypeCloudRun = "CloudRun"
+const ResourceTypeCloudRunService = "CloudRunService"
 
-type CloudRun struct {
+type CloudRunService struct {
 	name         string
 	creationDate string
 	creator      string
@@ -26,23 +27,23 @@ type CloudRun struct {
 }
 
 func init() {
-	register(ResourceTypeCloudRun, GetCloudRunClient, ListCloudRuns)
+	register(ResourceTypeCloudRunService, GetCloudRunServiceClient, ListCloudRunServices)
 }
 
-func GetCloudRunClient(project *gcputil.Project) (gcputil.GCPClient, error) {
-	if client, ok := project.GetClient(ResourceTypeCloudRun); ok {
+func GetCloudRunServiceClient(project *gcputil.Project) (gcputil.GCPClient, error) {
+	if client, ok := project.GetClient(ResourceTypeCloudRunService); ok {
 		return client, nil
 	}
 
 	client, err := run.NewServicesClient(project.GetContext(), project.Creds.GetNewClientOptions()...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create cloud run client: %v", err)
+		return nil, fmt.Errorf("failed to create cloud run service client: %v", err)
 	}
-	project.AddClient(ResourceTypeCloudRun, client)
+	project.AddClient(ResourceTypeCloudRunService, client)
 	return client, nil
 }
 
-func ListCloudRuns(project *gcputil.Project, client gcputil.GCPClient) ([]Resource, error) {
+func ListCloudRunServices(project *gcputil.Project, client gcputil.GCPClient) ([]Resource, error) {
 	cloudRunClient := client.(*run.ServicesClient)
 
 	resources := make([]Resource, 0)
@@ -64,9 +65,9 @@ func ListCloudRuns(project *gcputil.Project, client gcputil.GCPClient) ([]Resour
 			}
 
 			if err != nil {
-				return nil, fmt.Errorf("failed to list subnetworks: %v", err)
+				return nil, fmt.Errorf("failed to list cloud run services: %v", err)
 			}
-			resources = append(resources, &CloudRun{
+			resources = append(resources, &CloudRunService{
 				name:         path.Base(resp.GetName()),
 				creationDate: resp.GetCreateTime().AsTime().Format(time.RFC3339),
 				creator:      resp.GetCreator(),
@@ -78,7 +79,7 @@ func ListCloudRuns(project *gcputil.Project, client gcputil.GCPClient) ([]Resour
 	return resources, nil
 }
 
-func (x *CloudRun) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
+func (x *CloudRunService) Remove(project *gcputil.Project, client gcputil.GCPClient) (err error) {
 	cloudRunClient := client.(*run.ServicesClient)
 
 	req := &runpb.DeleteServiceRequest{
@@ -93,7 +94,7 @@ func (x *CloudRun) Remove(project *gcputil.Project, client gcputil.GCPClient) (e
 	return nil
 }
 
-func (x *CloudRun) GetOperationError(ctx context.Context) error {
+func (x *CloudRunService) GetOperationError(ctx context.Context) error {
 	return getRunServiceOperationError(ctx, x.operation)
 }
 
@@ -104,11 +105,11 @@ func getRunServiceOperationError(ctx context.Context, op *run.DeleteServiceOpera
 	return err
 }
 
-func (x *CloudRun) String() string {
+func (x *CloudRunService) String() string {
 	return x.name
 }
 
-func (x *CloudRun) Properties() types.Properties {
+func (x *CloudRunService) Properties() types.Properties {
 	properties := types.NewProperties()
 	properties.Set("Name", x.name)
 	properties.Set("Region", x.region)

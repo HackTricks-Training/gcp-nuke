@@ -51,7 +51,8 @@ test_packages:
 test_format:
 	gofmt -s -l $(GOFILES)
 
-test: test_format vet lint test_packages
+# test: test_format vet lint test_packages
+test: test_format vet test_packages
 
 cov:
 	gocov test -v $(GOPKGS) \

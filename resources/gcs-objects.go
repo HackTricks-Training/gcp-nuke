@@ -6,15 +6,17 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"google.golang.org/api/iterator"
+
 	"github.com/dshelley66/gcp-nuke/pkg/gcputil"
 	"github.com/dshelley66/gcp-nuke/pkg/types"
-	"google.golang.org/api/iterator"
 )
 
 const ResourceTypeBucketObject = "BucketObject"
 
 type BucketObject struct {
 	name         string
+	generation   int64
 	bucket       string
 	creationDate string
 	bucketLabels map[string]string
@@ -39,21 +41,27 @@ func ListBucketObjects(project *gcputil.Project, client gcputil.GCPClient) ([]Re
 		if err != nil {
 			return nil, fmt.Errorf("failed to list buckets: %v", err)
 		}
-		itObj := storageClient.Bucket(bucket.Name).Objects(project.GetContext(), nil)
+
+		query := &storage.Query{
+			Versions: bucket.VersioningEnabled,
+		}
+		itObj := storageClient.Bucket(bucket.Name).Objects(project.GetContext(), query)
 		for {
 			objAttrs, err := itObj.Next()
 			if err == iterator.Done {
 				break
 			}
+			fmt.Printf("Object %s | %s | %d", objAttrs.Name, objAttrs.Deleted, objAttrs.Generation)
 
 			if err != nil {
 				return nil, fmt.Errorf("failed to list bucket objects for %s: %v", bucket.Name, err)
 			}
-			if !objAttrs.Deleted.IsZero() {
+			if !bucket.VersioningEnabled && !objAttrs.Deleted.IsZero() {
 				continue
 			}
 			resources = append(resources, &BucketObject{
 				name:         objAttrs.Name,
+				generation:   objAttrs.Generation,
 				bucket:       objAttrs.Bucket,
 				creationDate: objAttrs.Created.Format(time.RFC3339),
 				bucketLabels: bucket.Labels,
@@ -65,9 +73,9 @@ func ListBucketObjects(project *gcputil.Project, client gcputil.GCPClient) ([]Re
 
 func (b *BucketObject) Remove(project *gcputil.Project, client gcputil.GCPClient) error {
 	storageClient := client.(*storage.Client)
-
 	bucketObject := storageClient.Bucket(b.bucket).Object(b.name)
-	err := bucketObject.Delete(project.GetContext())
+
+	err := bucketObject.Generation(b.generation).Delete(project.GetContext())
 	if err != nil {
 		return err
 	}
@@ -86,6 +94,7 @@ func (b *BucketObject) String() string {
 func (b *BucketObject) Properties() types.Properties {
 	properties := types.NewProperties()
 	properties.Set("Name", b.name)
+	properties.Set("Generation", b.generation)
 	properties.Set("CreationDate", b.creationDate)
 	properties.Set("Bucket", b.bucket)
 
